@@ -36,6 +36,27 @@ namespace PlayFab<%- gemName %>Sdk
 						->Property("ErrorName", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::ErrorName))
 						->Property("ErrorMessage", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::ErrorMessage))
 						->Property("ErrorDetails", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::ErrorDetails))
+                        ->Method("__tostring", [](const PlayFabError* error) 
+						{ 
+							auto errorMessage = AZStd::string::format("PlayFab Error:\n---------------------------\n");
+								
+							errorMessage.append(AZStd::string::format("HttpCode: %i\nHttpStatus: %s\nError Code: %i\nError: %s\n",
+								error->HttpCode,
+								error->HttpStatus.c_str(),
+								error->ErrorCode,
+								error->ErrorName.c_str()
+							)); 
+
+							errorMessage.append("Additional details:\n");
+							for (auto& details : error->ErrorDetails)
+							{
+								errorMessage.append(AZStd::string::format("%s: %s", details.first.c_str(), details.second.c_str()));
+							}
+
+							errorMessage.append(AZStd::string::format("\n---------------------------\n"));
+
+							return errorMessage;
+						})
 					;
                 }
             }
