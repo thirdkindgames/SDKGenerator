@@ -136,7 +136,7 @@ namespace PlayFab<%- gemName %>Sdk
 				->Handler<PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler>();
 
 			// Reflect the GLOBAL notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
-			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>NotificationBus>("PlayFab<%- api.name %>GlobalNotificationBus")
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus>("PlayFab<%- api.name %>GlobalNotificationBus")
 				->Handler<PlayFab<%- gemName %>_<%- api.name %>GlobalBehaviorBusHandler>();                
 			
             //-----------------------------------------------------------------------------------------------------
