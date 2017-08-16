@@ -155,7 +155,7 @@ namespace PlayFab<%- gemName %>Sdk
                     var enumval = datatype.enumvalues[i];
                     var enumName = `${datatype.name}${enumval.name}`
 
-                    %>    ->Enum<<%- api.name %>Models::<%- datatype.name %>::<%- enumName %>>( "<%- api.name %><%- enumName %>" )
+                    %>    ->Enum<<%- api.name %>Models::<%- datatype.name %>::<%- enumName %>>( "PlayFab<%- api.name %>_<%- datatype.name %>_<%- enumval.name %>" )
             <%
                 }
                 %>;
