@@ -5,12 +5,13 @@
 
 namespace PlayFab<%- gemName %>Sdk
 {
+    // Request based notification bus, use this bus when you want to listen for a callback from a specific instance of an API request.
     class PlayFab<%- gemName %>_<%- api.name %>Notifications
         : public AZ::EBusTraits
     {
 
     public:
-		// The EBus has multiple addresses. Addresses are not ordered.
+		// The EBus has multiple addresses. Addresses are not ordered. The address corresponds to the ID of the request.
 		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
 		typedef int BusIdType;
 
@@ -18,10 +19,31 @@ namespace PlayFab<%- gemName %>Sdk
         virtual void OnError(const PlayFabError& error) {};
 
         // ------------ Generated API call wrappers
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-        virtual void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result) {};
+<% for(var i in api.calls) { var apiCall = api.calls[i]; 
+%>        virtual void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result) {};
 <% } %>    
    };
 
     using PlayFab<%- gemName %>_<%- api.name %>NotificationBus = AZ::EBus<PlayFab<%- gemName %>_<%- api.name %>Notifications>;
+
+    // Global notification bus - use this bus when you want to listen for all responses to a particular type of request. 
+    class PlayFab<%- gemName %>_<%- api.name %>GlobalNotifications
+        : public AZ::EBusTraits
+    {
+
+    public:
+		// The EBus has a single address, all notifications go to this address.
+		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::Single;
+
+        // ------------ General notifications (not related to a specific API call)
+        virtual void OnError(const PlayFabError& error, int requestId) {};
+
+        // ------------ Generated API call wrappers
+<% for(var i in api.calls) { var apiCall = api.calls[i]; 
+%>        virtual void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result, int requestId) {};
+<% } %>    
+   };
+
+    using PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus = AZ::EBus<PlayFab<%- gemName %>_<%- api.name %>GlobalNotifications>;
+
 } // namespace PlayFab<%- gemName %>Sdk

@@ -28,18 +28,7 @@ var behaviorContextTokens =
     "ServerMatchmaker": "BDD7BF76-8235-4030-AFB3-BADB80D9CD25",
     "ServerServer": "1AEDB06E-1F6A-4C8E-94EB-90F292E4E098",
 }
-var behaviorHandlerTokens =
-{
-    "ClientClient": "21A8DF7F-A4E5-4C43-AA32-8D82612982E0",
 
-    "ComboServer": "9411DE88-75F8-43AD-ADBD-F4BD6EDA1695",
-    "ComboClient": "52E40552-66C1-4256-8CA3-D5723E9B278B",
-    "ComboMatchmaker": "35197E81-64AC-4422-8DF2-DAC0E678209B",
-
-    "ServerAdmin": "7C258322-182E-4C8A-B0C0-9810011D73B9",
-    "ServerMatchmaker": "1575CEEC-57BB-4956-8E01-8BC0A1C325EB",
-    "ServerServer": "2A9A6AC7-3D60-44AE-BF6A-88A90DEF3C2E",
-}
 // THIRD_KIND_END
 
 var sysCmpTokens = {
@@ -223,7 +212,7 @@ function MakeApi(api, sourceDir, apiOutputDir, gemName) {
         hasClientOptions: api.name === "Client",
         sysCmpTokens: sysCmpTokens,
         behaviorContextTokens: behaviorContextTokens, // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
-        behaviorHandlerTokens: behaviorHandlerTokens, // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        uuid: (name) => uuidv5( name, sysCmpTokens[gemName+api.name]),     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         datatypes: orderedTypes,                      // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         GetPropertySafeName: GetPropertySafeName,     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         GetPropertyCppType: GetPropertyCppType,       // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)

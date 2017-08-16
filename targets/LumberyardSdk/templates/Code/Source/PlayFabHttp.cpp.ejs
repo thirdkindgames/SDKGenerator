@@ -33,6 +33,7 @@ PlayFabRequest::PlayFabRequest(const AZStd::string& URI, Aws::Http::HttpMethod m
     , mInternalCallback(internalCallback)
     , mResultCallback(mResultCallback)
     , mErrorCallback(mErrorCallback)
+    , mRequestId(0) // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
 {
 }
 
@@ -125,12 +126,17 @@ int PlayFabRequestManager::GetPendingCalls()
     return temp;
 }
 
-void PlayFabRequestManager::AddRequest(PlayFabRequest* requestContainer)
+int PlayFabRequestManager::AddRequest(PlayFabRequest* requestContainer)
 {
     {
         AZStd::lock_guard<AZStd::mutex> lock(m_requestMutex);
         m_requestsToHandle.push(AZStd::move(requestContainer));
     }
+
+    // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
+	requestContainer->mRequestId = m_requestID.fetch_inc();
+	return requestContainer->mRequestId;
+	// #THIRD_KIND_END
 }
 
 void PlayFabRequestManager::ThreadFunction()

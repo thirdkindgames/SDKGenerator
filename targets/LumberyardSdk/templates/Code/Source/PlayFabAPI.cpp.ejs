@@ -44,7 +44,7 @@ void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)
 // PlayFab<%- api.name %> Api
 PlayFab<%- api.name %>Api::PlayFab<%- api.name %>Api() {}
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-void PlayFab<%- api.name %>Api::<%- apiCall.name %>(
+int PlayFab<%- api.name %>Api::<%- apiCall.name %>(
 <% if(HasRequest(apiCall, api)) { %>    <%- api.name %>Models::<%- apiCall.request %>& request,<% } %>
     ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
@@ -56,7 +56,7 @@ void PlayFab<%- api.name %>Api::<%- apiCall.name %>(
 %>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings->getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- GetAuthParams(apiCall) %>, request.toJSONString(), customData, callback, errorCallback, On<%- apiCall.name %>Result);
 <% } else {
 %>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings->getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- GetAuthParams(apiCall) %>, "", customData, callback, errorCallback, On<%- apiCall.name %>Result);
-<% } %>    PlayFabRequestManager::playFabHttp->AddRequest(newRequest);
+<% } %>    return PlayFabRequestManager::playFabHttp->AddRequest(newRequest);
 }
 
 void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* request)
@@ -73,7 +73,8 @@ void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* requ
             successCallback(*outResult, request->mCustomData);
         }
 
-		EBUS_EVENT_ID(/*request->requestId*/0,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, On<%- apiCall.name %>, *outResult); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
+		EBUS_EVENT_ID(request->mRequestId,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, On<%- apiCall.name %>, *outResult); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
+        EBUS_EVENT(PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus, On<%- apiCall.name %>, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
 
         delete outResult;
         delete request;

@@ -13,21 +13,26 @@
 
 namespace PlayFab<%- gemName %>Sdk
 {
+    //-----------------------------------------------------------------------------------------------------
+    // Behavior binder for the notification bus.
+    //-----------------------------------------------------------------------------------------------------
+    // These binders monitor the specified PlayFab NotificationBus and forward messages to the behavior context
+	// This is a Lumberyard requirement for reflection because the behavior context can not guarantee that there
+    // is a handler for each message. If a message expects a result, you must provide a default result in case
+    // the message is not handled by the behavior context user.
 
-	// This is the behaviour notification bus used to monitor the specified PlayFab NotificationBus and forward messages to the behavior context
-	// This is a Lumberyard requirement for reflection because the behavior context can not guarantee that there is a handler for each message.
-	// If a message expects a result, you must provide a default result in case the message is not handled by the behavior context user.
-	class PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler : 
-		public PlayFab<%- gemName %>_<%- api.name %>NotificationBus::Handler, 
+    // This base class provides the shared binding logic for the 2 buses (the request based notification bus and the global notification buses)
+    template<typename T>
+    class PlayFab<%- gemName %>_<%- api.name %>BehaviorBusBaseHandler : 
 		public AZ::BehaviorEBusHandler
-	{
-   
-	public:
-		// Note that normally we would list all of the notification handler functions here using the AZ_EBUS_BEHAVIOR_BINDER macro
-		// However the AZ_EBUS_BEHAVIOR_BINDER macro supports a maximum of 30 functions, so we generate the calls by hand here instead.
-		<% var handler = `PlayFab${gemName}_${api.name}BehaviorBusHandler` %>
-		AZ_CLASS_ALLOCATOR(<%- handler %>,AZ::SystemAllocator,0)
-		AZ_RTTI(<%- handler %>,"{<%- behaviorHandlerTokens[gemName+api.name] %>}",AZ::BehaviorEBusHandler)
+	{ 
+
+    // Note that normally we would list all of the notification handler functions here using the AZ_EBUS_BEHAVIOR_BINDER macro
+    // However the AZ_EBUS_BEHAVIOR_BINDER macro supports a maximum of 30 functions, so we generate the calls by hand here instead.
+            
+    public: 
+        AZ_CLASS_ALLOCATOR(T,AZ::SystemAllocator,0)
+    protected:
 
 		enum {
 			FN_OnError,
@@ -36,7 +41,7 @@ namespace PlayFab<%- gemName %>Sdk
         	FN_MAX
     	};
 
-		int GetFunctionIndex(const char* functionName) const override {
+        int GetFunctionIndex(const char* functionName) const override {
 			AZ_BEHAVIOR_EBUS_FUNC_INDEX(OnError)
 			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
 			%>AZ_BEHAVIOR_EBUS_FUNC_INDEX(On<%- apiCall.name %>)
@@ -44,24 +49,36 @@ namespace PlayFab<%- gemName %>Sdk
 			return -1;
 		}
 
-		void Disconnect() override {
+        bool Connect(AZ::BehaviorValueParameter* id = nullptr) override {
+			return AZ::Internal::EBusConnector<T>::Connect(static_cast<T*>(this), id);
+		}
+
+        // Constructor
+        PlayFab<%- gemName %>_<%- api.name %>BehaviorBusBaseHandler()
+        {
+        	m_events.resize(FN_MAX);
+			SetEvent(&T::OnError,"OnError");
+			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
+			%>SetEvent(&T::On<%- apiCall.name %>,"On<%- apiCall.name %>");
+			<% } %>
+        }
+        
+    };
+
+    // Behavior binder for the (request) based notification bus.
+	class PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler : 
+		public PlayFab<%- gemName %>_<%- api.name %>NotificationBus::Handler, 
+		public PlayFab<%- gemName %>_<%- api.name %>BehaviorBusBaseHandler<PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler>
+	{
+   
+	public:
+        <% var handler = `PlayFab${gemName}_${api.name}BehaviorBusHandler` %>
+		AZ_RTTI(<%- handler %>,"{<%- uuid("BehaviorBusHandler") %>}",AZ::BehaviorEBusHandler)
+
+        void Disconnect() override {
 			BusDisconnect();
 		}
-
-		<%- handler %>(){
-        	m_events.resize(FN_MAX);
-			SetEvent(&PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler::OnError,"OnError");
-			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
-			%>SetEvent(&PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler::On<%- apiCall.name %>,"On<%- apiCall.name %>");
-			<% } %>
-    	}
-
-		bool Connect(AZ::BehaviorValueParameter* id = nullptr) override {
-			return AZ::Internal::EBusConnector<<%- handler %>>::Connect(this, id);
-		}
-		// End of the expanded AZ_EBUS_BEHAVIOR_BINDER macro
-
-
+        
 		void OnError(const PlayFabError& error) override
 		{
 			Call(FN_OnError, error);
@@ -69,13 +86,40 @@ namespace PlayFab<%- gemName %>Sdk
 
 		// ------------ Generated APIs to receive from the PlayFab notification bus and forward on to the Lua behavior context.
 	<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-		void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result) {
-			Call(FN_On<%- apiCall.name %>, result);
-		};
-	<% } %>
+		void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result) { Call(FN_On<%- apiCall.name %>, result); };<%
+	} %>
 
 	};
 
+    // Behavior binder for the (global) based notification bus.
+	class PlayFab<%- gemName %>_<%- api.name %>GlobalBehaviorBusHandler : 
+		public PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus::Handler, 
+		public PlayFab<%- gemName %>_<%- api.name %>BehaviorBusBaseHandler<PlayFab<%- gemName %>_<%- api.name %>GlobalBehaviorBusHandler>
+	{
+   
+	public:
+        <% var handler = `PlayFab${gemName}_${api.name}GlobalBehaviorBusHandler` %>
+		AZ_RTTI(<%- handler %>,"{<%- uuid("GlobalBehaviorBusHandler") %>}",AZ::BehaviorEBusHandler)
+
+        void Disconnect() override {
+			BusDisconnect();
+		}
+
+		void OnError(const PlayFabError& error, int requestId) override
+		{
+			Call(FN_OnError, requestId, error);
+		}
+
+		// ------------ Generated APIs to receive from the PlayFab notification bus and forward on to the Lua behavior context.
+	<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+		void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result,int requestId) { Call(FN_On<%- apiCall.name %>, result,requestId); };<% 
+	} %>
+
+	};
+
+    //-----------------------------------------------------------------------------------------------------
+    // MAIN REFLECTION FUNCTION
+    //-----------------------------------------------------------------------------------------------------
 	void PlayFab<%- gemName %>_<%- api.name %>BehaviorContext::Reflect(AZ::ReflectContext* context)
 	{
 		AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
@@ -87,10 +131,13 @@ namespace PlayFab<%- gemName %>Sdk
 				->Event("<%- apiCall.name %>", &PlayFab<%- gemName %>_<%- api.name %>RequestBus::Events::<%- apiCall.name %>)<% 
 			} %>;
 
-			// Reflect the notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
+			// Reflect the ADDRESSED notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
 			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>NotificationBus>("PlayFab<%- api.name %>NotificationBus")
 				->Handler<PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler>();
 
+			// Reflect the GLOBAL notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>NotificationBus>("PlayFab<%- api.name %>GlobalNotificationBus")
+				->Handler<PlayFab<%- gemName %>_<%- api.name %>GlobalBehaviorBusHandler>();                
 			
             //-----------------------------------------------------------------------------------------------------
 			// Reflect enum values

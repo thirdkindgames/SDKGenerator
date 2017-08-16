@@ -21,9 +21,9 @@ namespace PlayFab<%- gemName %>Sdk
 <% } %>
         // ------------ Generated API call wrappers
 <% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) {
-%>        virtual void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr) = 0;
+%>        virtual int <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr) = 0;
 <% } else
-{%>        virtual void <%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr) = 0;
+{%>        virtual int <%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr) = 0;
 <% } }
 %>    };
 

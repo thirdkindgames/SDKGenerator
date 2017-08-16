@@ -42,6 +42,8 @@ namespace PlayFab<%- gemName %>Sdk
         // Customizable object that provides identification or other information for the caller, in the callback
         void* mCustomData;
 
+        int mRequestId; // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11) - Each request is assigned a unique ID, it is used to address the notification ebus so that other systems can choose to listen only to callbacks for requests that they sent.
+
         // Everything about the response
         std::shared_ptr<Aws::Http::HttpResponse> httpResponse;
         char* mResponseText; // If the server responded, this will be the raw text returned
@@ -71,7 +73,7 @@ namespace PlayFab<%- gemName %>Sdk
 
         // see IHttpRequestManager::AddRequest
         // Add these parameters to a queue of request parameters to send off as an HTTP request as soon as they reach the head of the queue
-        void AddRequest(PlayFabRequest* httpRequestParameters);
+        int AddRequest(PlayFabRequest* httpRequestParameters);
         int GetPendingCalls(); // Return the number of unfinished calls
 
     private:
@@ -95,5 +97,8 @@ namespace PlayFab<%- gemName %>Sdk
 
         // This is the thread that will be used for all async operations
         AZStd::thread m_thread;
+
+        // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11) - ID number of last sent request, every request is assigned a unique ID.
+		AZStd::atomic<int> m_requestID = 0;
     };
 }
