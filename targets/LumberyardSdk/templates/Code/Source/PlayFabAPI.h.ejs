@@ -14,6 +14,10 @@ namespace PlayFab<%- gemName %>Sdk
         static bool IsClientLoggedIn();
         static void ForgetClientCredentials();  // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES: - Added a logout function so that the statics can be destroyed before the system allocator.
 <% } %>
+
+        // ------------ Error callback
+        static void OnError(const PlayFabRequest& request, const PlayFabError& error);
+
         // ------------ Generated Api calls
 <% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) {
 %>        static int <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr);

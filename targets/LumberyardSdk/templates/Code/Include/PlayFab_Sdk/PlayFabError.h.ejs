@@ -23,7 +23,7 @@ namespace PlayFab<%- gemName %>Sdk
         PlayFabErrorCode ErrorCode; // Playfab error
         AZStd::string ErrorName; // PlayFab error name
         AZStd::string ErrorMessage; // PlayFab error message
-        std::map< AZStd::string, AZStd::string > ErrorDetails; // More specific details about failures (when present)
+        AZStd::unordered_map< AZStd::string, AZStd::string > ErrorDetails; // More specific details about failures (when present)
     };
 
     typedef void(*ErrorCallback)(const PlayFabError& error, void* customData);

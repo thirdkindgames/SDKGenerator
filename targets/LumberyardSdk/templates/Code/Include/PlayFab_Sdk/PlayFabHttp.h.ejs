@@ -15,15 +15,16 @@ namespace PlayFab<%- gemName %>Sdk
     {
     public:
         typedef std::function<void(PlayFabRequest* request)> HttpCallback;
+        typedef std::function<void(const PlayFabRequest& request, const PlayFabError&)> InternalErrorCallback; // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
 
         // Initializing ctor
-        PlayFabRequest(const AZStd::string& URI, Aws::Http::HttpMethod method, const AZStd::string& authKey, const AZStd::string& authValue, const AZStd::string& requestJsonBody, void* customData, void* mResultCallback, ErrorCallback mErrorCallback, const HttpCallback& internalCallback);
+        PlayFabRequest(const AZStd::string& URI, Aws::Http::HttpMethod method, const AZStd::string& authKey, const AZStd::string& authValue, const AZStd::string& requestJsonBody, void* customData, void* mResultCallback, ErrorCallback mErrorCallback, const HttpCallback& internalCallback, const InternalErrorCallback& mInternalErrorCallback );
         ~PlayFabRequest();
 
         // #THIRD_KIND_PLAYFAB_REQUEST_CALLBACK_LINUX: Allow conversion of ProcessApiCallback<T> to void*. Fixes no matching constructor for initialization of 'PlayFab<%- gemName %>Sdk::PlayFabRequest'. no known conversion from 'ProcessApiCallback<XXX>' (aka 'void (*)(const XXX &, void *)') to 'void *'
         template < typename T >
-        inline PlayFabRequest(const AZStd::string& URI, Aws::Http::HttpMethod method, const AZStd::string& authKey, const AZStd::string& authValue, const AZStd::string& requestJsonBody, void* customData, T mResultCallback, ErrorCallback mErrorCallback, const HttpCallback& internalCallback)
-            : PlayFabRequest(URI, method, authKey, authValue, requestJsonBody, customData, (void*)mResultCallback, mErrorCallback, internalCallback)
+        inline PlayFabRequest(const AZStd::string& URI, Aws::Http::HttpMethod method, const AZStd::string& authKey, const AZStd::string& authValue, const AZStd::string& requestJsonBody, void* customData, T mResultCallback, ErrorCallback mErrorCallback, const HttpCallback& internalCallback, const InternalErrorCallback& mInternalErrorCallback)
+            : PlayFabRequest(URI, method, authKey, authValue, requestJsonBody, customData, (void*)mResultCallback, mErrorCallback, internalCallback, mInternalErrorCallback)
         {
             static_assert(sizeof(T) <= sizeof(void*), "Size of function pointer is larger than void*, bad cast will occur.");
         }
@@ -57,6 +58,7 @@ namespace PlayFab<%- gemName %>Sdk
         HttpCallback mInternalCallback;
         void* mResultCallback;
         ErrorCallback mErrorCallback;
+        InternalErrorCallback mInternalErrorCallback; // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
     private:
         // Disable copy constructor and assignment by making them private
         PlayFabRequest(const PlayFabRequest&);

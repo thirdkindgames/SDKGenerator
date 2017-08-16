@@ -107,7 +107,7 @@ namespace PlayFab<%- gemName %>Sdk
 
 		void OnError(const PlayFabError& error, int requestId) override
 		{
-			Call(FN_OnError, requestId, error);
+			Call(FN_OnError, error, requestId);
 		}
 
 		// ------------ Generated APIs to receive from the PlayFab notification bus and forward on to the Lua behavior context.

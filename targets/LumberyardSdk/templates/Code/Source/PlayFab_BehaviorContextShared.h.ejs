@@ -24,7 +24,19 @@ namespace PlayFab<%- gemName %>Sdk
                 AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
                 if (behaviorContext)
                 {
-                    behaviorContext->Class<PlayFab<%- gemName %>Sdk::MultitypeVar>("PlayFab<%- gemName %>Sdk_MultitypeVar");	
+                    behaviorContext->Class<PlayFab<%- gemName %>Sdk::MultitypeVar>("PlayFab<%- gemName %>_MultitypeVar");
+                    
+                    behaviorContext->Class<PlayFab<%- gemName %>Sdk::PlayFabError>("PlayFab<%- gemName %>_PlayFabError")
+						->Property("HttpCode", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::HttpCode))
+						->Property("HttpStatus", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::HttpStatus))
+						->Property("ErrorCode", 
+							[](PlayFab<%- gemName %>Sdk::PlayFabError* p) { return p->ErrorCode; },
+							[](PlayFab<%- gemName %>Sdk::PlayFabError* p, PlayFab<%- gemName %>Sdk::PlayFabErrorCode v) { p->ErrorCode = v; }
+						)
+						->Property("ErrorName", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::ErrorName))
+						->Property("ErrorMessage", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::ErrorMessage))
+						->Property("ErrorDetails", BehaviorValueProperty(&PlayFab<%- gemName %>Sdk::PlayFabError::ErrorDetails))
+					;
                 }
             }
 
