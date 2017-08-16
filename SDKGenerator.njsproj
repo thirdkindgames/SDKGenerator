@@ -431,6 +431,7 @@
     <Content Include="targets\LuaSdk\templates\PlayFabSettings.lua.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabBaseModel.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabHttp.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFab_NotificationBus.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFab_SettingsBus.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFab_Bus.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\playfab_sdk_tests.waf_files.ejs" />

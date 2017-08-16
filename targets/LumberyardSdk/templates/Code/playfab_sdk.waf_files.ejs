@@ -6,7 +6,8 @@
         ],
         "Interface": [<% for (var i = 0; i < apis.length; i++) { %>
             "Include/PlayFab<%- gemName %>Sdk/PlayFab<%- apis[i].name %>DataModels.h",
-            "Include/PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- apis[i].name %>Bus.h",<% } %>
+            "Include/PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- apis[i].name %>Bus.h",
+            "Include/PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- apis[i].name %>NotificationBus.h",<% } %>
             "Include/PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_SettingsBus.h",
             "Include/PlayFab<%- gemName %>Sdk/PlayFabBaseModel.h",
             "Include/PlayFab<%- gemName %>Sdk/PlayFabError.h",

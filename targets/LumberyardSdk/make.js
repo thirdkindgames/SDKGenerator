@@ -196,6 +196,12 @@ function MakeApi(api, sourceDir, apiOutputDir, gemName) {
 
     var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_Bus.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "bus.h"), apiCpp(locals));
+
+    // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
+    var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_NotificationBus.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "notificationbus.h"), apiCpp(locals));
+    // #THIRD_KIND_END
+
 }
 
 function GenerateTestFiles(apis, sourceDir, apiOutputDir, gemName) {

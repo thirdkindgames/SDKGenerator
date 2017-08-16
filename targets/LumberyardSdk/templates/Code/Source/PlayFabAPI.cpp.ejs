@@ -2,6 +2,9 @@
 #include "PlayFab<%- api.name %>Api.h"
 #include "PlayFabSettings.h"
 
+#include <AzCore/EBus/EBus.h>
+#include "PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- api.name %>NotificationBus.h" // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
+
 using namespace PlayFab<%- gemName %>Sdk;
 <% if(hasClientOptions) { %>
 // Client-Specific
@@ -69,6 +72,9 @@ void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* requ
             ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>>>(request->mResultCallback);
             successCallback(*outResult, request->mCustomData);
         }
+
+		EBUS_EVENT_ID(/*request->requestId*/0,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, On<%- apiCall.name %>, *outResult); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
+
         delete outResult;
         delete request;
     }

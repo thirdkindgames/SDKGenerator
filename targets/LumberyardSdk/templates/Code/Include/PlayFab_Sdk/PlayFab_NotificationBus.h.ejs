@@ -1,0 +1,27 @@
+// #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
+#pragma once
+#include <AzCore/EBus/EBus.h>
+#include <PlayFab<%- gemName %>Sdk/PlayFab<%- api.name %>DataModels.h>
+
+namespace PlayFab<%- gemName %>Sdk
+{
+    class PlayFab<%- gemName %>_<%- api.name %>Notifications
+        : public AZ::EBusTraits
+    {
+
+    public:
+		// The EBus has multiple addresses. Addresses are not ordered.
+		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
+		typedef int BusIdType;
+
+        // ------------ General notifications (not related to a specific API call)
+        virtual void OnError(const PlayFabError& error) {};
+
+        // ------------ Generated API call wrappers
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+        virtual void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result) {};
+<% } %>    
+   };
+
+    using PlayFab<%- gemName %>_<%- api.name %>NotificationBus = AZ::EBus<PlayFab<%- gemName %>_<%- api.name %>Notifications>;
+} // namespace PlayFab<%- gemName %>Sdk
