@@ -1,0 +1,168 @@
+﻿// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+
+#include "StdAfx.h"
+#include "PlayFab<%- gemName %>_<%- api.name %>BehaviorContext.h"
+#include <AzCore/RTTI/ReflectContext.h>
+#include <AzCore/RTTI/BehaviorContext.h>
+
+#include "PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- api.name %>NotificationBus.h"
+#include "PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- api.name %>Bus.h"
+#include "PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>DataModels.h"
+
+#include "PlayFab<%- gemName %>_BehaviorContext.inl"
+
+namespace PlayFab<%- gemName %>Sdk
+{
+
+	// This is the behaviour notification bus used to monitor the specified PlayFab NotificationBus and forward messages to the behavior context
+	// This is a Lumberyard requirement for reflection because the behavior context can not guarantee that there is a handler for each message.
+	// If a message expects a result, you must provide a default result in case the message is not handled by the behavior context user.
+	class PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler : 
+		public PlayFab<%- gemName %>_<%- api.name %>NotificationBus::Handler, 
+		public AZ::BehaviorEBusHandler
+	{
+   
+	public:
+		// Note that normally we would list all of the notification handler functions here using the AZ_EBUS_BEHAVIOR_BINDER macro
+		// However the AZ_EBUS_BEHAVIOR_BINDER macro supports a maximum of 30 functions, so we generate the calls by hand here instead.
+		<% var handler = `PlayFab${gemName}_${api.name}BehaviorBusHandler` %>
+		AZ_CLASS_ALLOCATOR(<%- handler %>,AZ::SystemAllocator,0)
+		AZ_RTTI(<%- handler %>,"{<%- behaviorHandlerTokens[gemName+api.name] %>}",AZ::BehaviorEBusHandler)
+
+		enum {
+			FN_OnError,
+			<% for(var i in api.calls) { var apiCall = api.calls[i]; %>FN_On<%- apiCall.name %>,
+			<% } %>
+        	FN_MAX
+    	};
+
+		int GetFunctionIndex(const char* functionName) const override {
+			AZ_BEHAVIOR_EBUS_FUNC_INDEX(OnError)
+			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
+			%>AZ_BEHAVIOR_EBUS_FUNC_INDEX(On<%- apiCall.name %>)
+			<% } %>
+			return -1;
+		}
+
+		void Disconnect() override {
+			BusDisconnect();
+		}
+
+		<%- handler %>(){
+        	m_events.resize(FN_MAX);
+			SetEvent(&PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler::OnError,"OnError");
+			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
+			%>SetEvent(&PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler::On<%- apiCall.name %>,"On<%- apiCall.name %>");
+			<% } %>
+    	}
+
+		bool Connect(AZ::BehaviorValueParameter* id = nullptr) override {
+			return AZ::Internal::EBusConnector<<%- handler %>>::Connect(this, id);
+		}
+		// End of the expanded AZ_EBUS_BEHAVIOR_BINDER macro
+
+
+		void OnError(const PlayFabError& error) override
+		{
+			Call(FN_OnError, error);
+		}
+
+		// ------------ Generated APIs to receive from the PlayFab notification bus and forward on to the Lua behavior context.
+	<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+		void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result) {
+			Call(FN_On<%- apiCall.name %>, result);
+		};
+	<% } %>
+
+	};
+
+	void PlayFab<%- gemName %>_<%- api.name %>BehaviorContext::Reflect(AZ::ReflectContext* context)
+	{
+		AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
+		if (behaviorContext)
+		{
+			// Reflect the request bus
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>RequestBus>("PlayFab<%- api.name %>RequestBus")<%
+			for(var i in api.calls) { var apiCall = api.calls[i];%>
+				->Event("<%- apiCall.name %>", &PlayFab<%- gemName %>_<%- api.name %>RequestBus::Events::<%- apiCall.name %>)<% 
+			} %>;
+
+			// Reflect the notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>NotificationBus>("PlayFab<%- api.name %>NotificationBus")
+				->Handler<PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler>();
+
+			
+            //-----------------------------------------------------------------------------------------------------
+			// Reflect enum values
+            //-----------------------------------------------------------------------------------------------------
+	<% 
+        // Reflect all members of enum based data models.
+        for(var i in datatypes) 
+        { 
+            var datatype = datatypes[i]; // ========= BEGIN FOR-EACH DATATYPE DEFN =========
+            if(datatype.isenum)
+            {
+      %>        behaviorContext 
+            <%
+                for(var i=0; i<datatype.enumvalues.length; i++) { 
+                    var enumval = datatype.enumvalues[i];
+                    var enumName = `${datatype.name}${enumval.name}`
+
+                    %>    ->Enum<<%- api.name %>Models::<%- datatype.name %>::<%- enumName %>>( "<%- api.name %><%- enumName %>" )
+            <%
+                }
+                %>;
+    <%
+            }
+        }
+
+%>
+            //-----------------------------------------------------------------------------------------------------
+			// Reflect data models (structs/classes)
+            //-----------------------------------------------------------------------------------------------------
+<% 
+
+        for(var i in datatypes) 
+        { 
+            var datatype = datatypes[i];
+
+		if(!datatype.isenum) { // ========= BEGIN EACH NON-ENUM BASED OBJECT =========
+		%>
+			behaviorContext->Class<<%- api.name %>Models::<%- datatype.name %>>("PlayFab<%- api.name %>_<%- datatype.name %>")
+                ->Constructor() <%
+			for(var i in datatype.properties) { var property = datatype.properties[i]; 
+
+            // A few PlayFab types are not currently reflected as they require further work.
+            // Any map based properties, e.g. AZStd::unordered_map<KeyType,ValueType> - Not supported until LY1.10.
+            // Any AZStd::Vector<enum>() - Lumberyard's reflection system for AZStd::Vector does not support c-style enum types.
+			if (property.collection == "map" 
+				|| (property.collection == "array" && property.isenum)
+			 ){
+				continue;
+			} 
+                // Reflect enum based properties with a custom getter/setter because the BehaviorValueGetter() macro does not work with
+                // enums, it will cause an "Argument const & doesn't have support to be converted to Lua!"
+                if (property.isenum && !property.optional) {  
+				%>
+			    ->Property("<%- GetPropertySafeName(property) %>",
+				    [](<%- api.name %>Models::<%- datatype.name %>* p) { return p-><%- GetPropertySafeName(property) %>; },
+				    [](<%- api.name %>Models::<%- datatype.name %>* p, <%- api.name %>Models::<%- property.actualtype %> v) { p-><%- GetPropertySafeName(property) %> = v; })<% 
+                } 
+                else // Reflect all other property types (classes, strings, basic types etc.) 
+                { 
+                %>
+			    ->Property("<%- GetPropertySafeName(property) %>", <%
+				%>BehaviorValueProperty(&<%- api.name %>Models::<%- datatype.name %>::<%- GetPropertySafeName(property) %>)) <%
+				}
+
+			} %>
+			;
+		<%
+		} // ========= END EACH OBJECT =========
+	} // ========= END FOR-EACH DATATYPE DEFN ========= 
+	%> 
+				
+		} // if (behaviorContext) {...
+	} // End of BehaviorContext::Reflect()
+
+}

@@ -10,6 +10,8 @@
 #include <AzCore/JSON/document.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <AzCore/RTTI/RTTI.h> // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+
 #ifdef GetObject // wingdi.h is extremely impollite and #defined a common function name, breaking RapidJson.  How rude.
 #undef GetObject
 #endif
@@ -90,6 +92,7 @@ namespace PlayFab<%- gemName %>Sdk
 
     struct MultitypeVar : public PlayFabBaseModel
     {
+        AZ_TYPE_INFO(MultitypeVar,"{<%- uuid("MultitypeVar") %>}");
     private:
         MultitypeVarTypes mType;
         AZStd::string mString;
@@ -254,3 +257,20 @@ namespace PlayFab<%- gemName %>Sdk
         return result;
     }
 }
+
+// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+namespace AZ
+{
+    <% var ns = `PlayFab${gemName}Sdk` %>
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<bool>, "{<%- uuid("OptionalBool") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<<%- ns %>::Uint16>, "{<%- uuid("OptionalUint16") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<<%- ns %>::Int16>, "{<%- uuid("OptionalInt16") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<<%- ns %>::Uint32>, "{<%- uuid("OptionalUint32") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<<%- ns %>::Int32>, "{<%- uuid("OptionalInt32") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<<%- ns %>::Uint64>, "{<%- uuid("OptionalUint64") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<<%- ns %>::Int64>, "{<%- uuid("OptionalInt64") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<float>, "{<%- uuid("OptionalFloat") %>}");
+    AZ_TYPE_INFO_SPECIALIZE(<%- ns %>::Boxed<double>, "{<%- uuid("OptionalDouble") %>}");
+    //AZ_TYPE_INFO_SPECIALIZE(Boxed<time_t>, "{<%- uuid("OptionalTime") %>}");
+}
+// #THIRD_KIND_END

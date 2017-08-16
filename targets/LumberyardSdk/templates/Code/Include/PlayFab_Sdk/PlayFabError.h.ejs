@@ -16,6 +16,8 @@ namespace PlayFab<%- gemName %>Sdk
 
     struct PlayFabError
     {
+		AZ_TYPE_INFO(PlayFabError,"{<%- uuid("PlayFabError") %>}");
+
         int HttpCode; // Http status code
         AZStd::string HttpStatus; // Http status code description
         PlayFabErrorCode ErrorCode; // Playfab error

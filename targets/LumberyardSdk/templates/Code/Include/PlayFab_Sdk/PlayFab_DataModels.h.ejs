@@ -2,6 +2,7 @@
 
 #include <PlayFab<%- gemName %>Sdk/PlayFabBaseModel.h>
 #include <aws/core/utils/json/JsonSerializer.h>
+#include <AzCore/RTTI/RTTI.h> // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 
 using namespace rapidjson;
 
@@ -53,6 +54,11 @@ if(datatype.isenum) { // ========= BEGIN EACH ENUM =========
 else { // ========= BEGIN EACH OBJECT =========
 %>        struct <%- datatype.name %> : public <%- GetDatatypeBaseType(datatype) %>
         {
+		    <%/* UUIDs are generated using RFC4122 v5 UUIDs. These can be generated at different times and will produce the same UUID
+				 each time based on the datatype.name. v5 also requires that you provide a static UUID to namespace the generated UUIDs
+				 since we already have UUIDs for the gem/api we use this as the namespace. */%>
+			AZ_TYPE_INFO(PlayFab<%- gemName %>Sdk::<%- api.name %>Models::<%- datatype.name %>,"{<%- uuid(datatype.name) %>}"); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
 %>            <%- GetPropertyDef(property, datatype) %>
 <% } %>
@@ -98,3 +104,26 @@ else { // ========= BEGIN EACH OBJECT =========
 } // ========= END FOR-EACH DATATYPE DEFN ========= %>
     }
 }
+
+
+// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+namespace AZ
+{
+<% 
+        var gemNamespace = `PlayFab${gemName}Sdk`
+        var modelNamespace = `${gemNamespace}::${api.name}Models`
+%>    // Generate RTTI uuids for each enum type, these are needed to reflect any optional enums which are wrapped with Boxed<T>.
+<%
+        for(var i in datatypes) 
+        { 
+            var datatype = datatypes[i];
+            if(datatype.isenum) 
+            {
+            %>    AZ_TYPE_INFO_SPECIALIZE(<%- gemNamespace %>::Boxed<<%- modelNamespace %>::<%- datatype.name %>>, "{<%- uuid(`Optional${datatype.name}`) %>}");
+<%          }
+        }
+%>
+
+}
+// #THIRD_KIND_END
+

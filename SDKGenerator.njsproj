@@ -438,6 +438,12 @@
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabHttp.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\StdAfx.cpp" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\StdAfx.h" />
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_BehaviorContext.cpp.ejs">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_BehaviorContext.h.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SdkModule.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SettingsSysComponent.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SysComponent.cpp.ejs" />

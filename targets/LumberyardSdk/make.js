@@ -1,4 +1,5 @@
 var path = require("path");
+var uuidv5 = require('uuid/v5');    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 
 // Lumberyard has pretty significantly different imports from the other C++ sdks
 // It is also more closely structured like UnitySDK, and should hopefully be closer to implementing the
@@ -13,6 +14,33 @@ var uuids = {
     "TestGemServer": "1ef0cc192c26498e9d87e5940d0f0154",
     "TestGemCombo": "fee877ce92be40deb14badcc4b93b6ff",
 };
+
+// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+var behaviorContextTokens =
+{
+    "ClientClient": "9FDA67D0-FF41-427E-A3B1-6EAC971E4936",
+
+    "ComboServer": "3F2552A9-B613-4110-9F5F-D04424A845B4",
+    "ComboClient": "3E2ACD01-60D8-40B8-AF05-525ACA088CA2",
+    "ComboMatchmaker": "D6686CB2-84AA-41B6-B00B-24E780A6D218",
+
+    "ServerAdmin": "B1CD4A75-90B2-4652-BC8A-3EC262CDCCA4",
+    "ServerMatchmaker": "BDD7BF76-8235-4030-AFB3-BADB80D9CD25",
+    "ServerServer": "1AEDB06E-1F6A-4C8E-94EB-90F292E4E098",
+}
+var behaviorHandlerTokens =
+{
+    "ClientClient": "21A8DF7F-A4E5-4C43-AA32-8D82612982E0",
+
+    "ComboServer": "9411DE88-75F8-43AD-ADBD-F4BD6EDA1695",
+    "ComboClient": "52E40552-66C1-4256-8CA3-D5723E9B278B",
+    "ComboMatchmaker": "35197E81-64AC-4422-8DF2-DAC0E678209B",
+
+    "ServerAdmin": "7C258322-182E-4C8A-B0C0-9810011D73B9",
+    "ServerMatchmaker": "1575CEEC-57BB-4956-8E01-8BC0A1C325EB",
+    "ServerServer": "2A9A6AC7-3D60-44AE-BF6A-88A90DEF3C2E",
+}
+// THIRD_KIND_END
 
 var sysCmpTokens = {
     // These don't seem to matter much, but I borrowed the ones that were auto-generated and made them unique for each SysCmp in each Gem
@@ -106,6 +134,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
         sdkVersion: exports.sdkVersion,
         sdkModuleTokens: sdkModuleTokens,
         sysCmpTokens: sysCmpTokens,
+        uuid: (name) => uuidv5( name, uuids[gemName])  // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client") locals.hasClientOptions = true;
@@ -148,6 +177,14 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
     var settingCmpCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.cpp"), settingCmpCpp(locals));
 
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+    var behaviorInlTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_BehaviorContext.inl.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_BehaviorContext.inl"), behaviorInlTemplate(locals));
+
+    var behaviorSharedTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_BehaviorContextShared.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_BehaviorContextShared.h"), behaviorSharedTemplate(locals));
+    // #THIRD_KIND_END
+
     // Set the PlayFab Gem version in the 1.0 sample project - This is outside of the sdk itself
     try {
         var gemFilePath10 = "C:/dev/Lumberyard1.0/dev/SamplesProject/gems.json";
@@ -170,11 +207,26 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
 }
 
 function MakeApi(api, sourceDir, apiOutputDir, gemName) {
+
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+    // Order datatypes based on dependency graph
+    var orderedTypes = [];
+    var addedSet = {};
+
+    for (var i in api.datatypes)
+        AddTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
+    // #THIRD_KIND_END
+
     var locals = {
         api: api,
         gemUuid: uuids[gemName],
         hasClientOptions: api.name === "Client",
         sysCmpTokens: sysCmpTokens,
+        behaviorContextTokens: behaviorContextTokens, // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        behaviorHandlerTokens: behaviorHandlerTokens, // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        datatypes: orderedTypes,                      // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        GetPropertySafeName: GetPropertySafeName,     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        GetPropertyCppType: GetPropertyCppType,       // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 
         HasRequest: HasRequest,
         GetAuthParams: GetAuthParams,
@@ -200,6 +252,13 @@ function MakeApi(api, sourceDir, apiOutputDir, gemName) {
     // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
     var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_NotificationBus.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "notificationbus.h"), apiCpp(locals));
+    // #THIRD_KIND_END
+
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+    var bhvrCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_BehaviorContext.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_" + api.name + "BehaviorContext.cpp"), bhvrCpp(locals));
+    var bhvrH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_BehaviorContext.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_" + api.name + "BehaviorContext.h"), bhvrH(locals));
     // #THIRD_KIND_END
 
 }
@@ -732,7 +791,9 @@ function GenerateModels(apis, sourceDir, apiOutputDir, gemName) {
             GetPropertyDefaultValue: GetPropertyDefaultValue,
             GetPropertyCopyValue: GetPropertyCopyValue,
             GetPropertySafeName: GetPropertySafeName,
-            GetPropertyDestructor: GetPropertyDestructor
+            GetPropertyDestructor: GetPropertyDestructor,
+            sysCmpTokens: sysCmpTokens,  // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+            uuid: (name) => uuidv5( name, sysCmpTokens[gemName+api.name])     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         };
 
         var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_DataModels.h.ejs"));
@@ -746,7 +807,9 @@ function GenerateModels(apis, sourceDir, apiOutputDir, gemName) {
 function GenerateErrors(api, sourceDir, apiOutputDir, gemName) {
     var errorLocals = {
         errorList: api.errorList,
-        errors: api.errors
+        errors: api.errors,
+        uuids: uuids,             // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        uuid: (name) => uuidv5( name, uuids[gemName])  // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     };
 
     var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabError.h.ejs"));

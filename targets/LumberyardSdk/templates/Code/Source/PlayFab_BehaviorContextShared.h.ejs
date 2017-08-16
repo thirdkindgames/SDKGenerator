@@ -1,0 +1,38 @@
+// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+
+// This file contains the reflection logic for any types which are global to the gem 
+// E.g. any types which are ot tied to a specific API such as 'client', 'admin', 'matchmaking' etc.
+
+#pragma once
+#include <AzCore/Component/Component.h>
+#include <AzCore/RTTI/ReflectContext.h>
+#include <AzCore/RTTI/BehaviorContext.h>
+#include <PlayFab<%- gemName %>Sdk/PlayFabBaseModel.h>
+
+namespace PlayFab<%- gemName %>Sdk
+{
+		// This component provides behavior context reflection for the PlayFab SDK, this allows it to be used by Lua and other Lumberyard systems.
+		class PlayFab<%- gemName %>_BehaviorContextShared : public AZ::Component
+		{
+		public:
+			AZ_COMPONENT(PlayFab<%- gemName %>_BehaviorContextShared, "{<%- uuid('BehaviorContextShared') %>}");
+
+			static void Reflect(AZ::ReflectContext* context)
+            {
+                // Reflect only classes and enums which are global to the gem here (e.g. shared between APIs)
+                // All other reflection is in PlayFab<Gem>_<Api>BehaviorContext.cpp
+                AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
+                if (behaviorContext)
+                {
+                    behaviorContext->Class<PlayFab<%- gemName %>Sdk::MultitypeVar>("PlayFab<%- gemName %>Sdk_MultitypeVar");	
+                }
+            }
+
+			void Activate() override { }
+			void Deactivate() override { }
+
+		};
+
+}
+        
+        

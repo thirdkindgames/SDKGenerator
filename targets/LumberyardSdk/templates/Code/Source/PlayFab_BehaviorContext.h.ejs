@@ -1,0 +1,21 @@
+﻿// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+
+#pragma once
+#include <AzCore/Component/Component.h>
+
+namespace PlayFab<%- gemName %>Sdk
+{
+		// This component provides behavior context reflection for the PlayFab SDK, this allows it to be used by Lua and other Lumberyard systems.
+		class PlayFab<%- gemName %>_<%- api.name %>BehaviorContext : public AZ::Component
+		{
+		public:
+			AZ_COMPONENT(PlayFab<%- gemName %>_<%- api.name %>BehaviorContext, "{<%- behaviorContextTokens[gemName+api.name] %>}");
+
+			static void Reflect(AZ::ReflectContext* context);
+
+			void Activate() override { }
+			void Deactivate() override { }
+
+		};
+
+}

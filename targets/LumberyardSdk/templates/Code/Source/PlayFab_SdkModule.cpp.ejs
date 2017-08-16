@@ -3,8 +3,10 @@
 
 #include <platform_impl.h> // Resharper says this is unused, but it's still required in some less direct way
 #include "PlayFab<%- gemName %>_SettingsSysComponent.h"
+#include "PlayFab<%- gemName %>_BehaviorContextShared.h"  // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 <% for (var i = 0; i < apis.length; i++) {
 %>#include "PlayFab<%- gemName %>_<%- apis[i].name %>SysComponent.h"
+#include "PlayFab<%- gemName %>_<%- apis[i].name %>BehaviorContext.h" // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 <% } %>
 #include "PlayFabSettings.h"
 #include <PlayFab<%- gemName %>Sdk/PlayFabError.h><% if (hasClientOptions) {
@@ -47,8 +49,10 @@ namespace PlayFab<%- gemName %>Sdk
             // Push results of [MyComponent]::CreateDescriptor() into m_descriptors here.
             m_descriptors.insert(m_descriptors.end(), {
                 PlayFab<%- gemName %>_SettingsSysComponent::CreateDescriptor(),
+                PlayFab<%- gemName %>_BehaviorContextShared::CreateDescriptor(),  // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 <% for (var i = 0; i < apis.length; i++) {
 %>                PlayFab<%- gemName %>_<%- apis[i].name %>SysComponent::CreateDescriptor(),
+				  PlayFab<%- gemName %>_<%- apis[i].name %>BehaviorContext::CreateDescriptor(),  // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 <% } %>
             });
         }
