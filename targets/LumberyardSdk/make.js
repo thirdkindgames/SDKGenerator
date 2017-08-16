@@ -15,22 +15,6 @@ var uuids = {
     "TestGemCombo": "fee877ce92be40deb14badcc4b93b6ff",
 };
 
-// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
-var behaviorContextTokens =
-{
-    "ClientClient": "9FDA67D0-FF41-427E-A3B1-6EAC971E4936",
-
-    "ComboServer": "3F2552A9-B613-4110-9F5F-D04424A845B4",
-    "ComboClient": "3E2ACD01-60D8-40B8-AF05-525ACA088CA2",
-    "ComboMatchmaker": "D6686CB2-84AA-41B6-B00B-24E780A6D218",
-
-    "ServerAdmin": "B1CD4A75-90B2-4652-BC8A-3EC262CDCCA4",
-    "ServerMatchmaker": "BDD7BF76-8235-4030-AFB3-BADB80D9CD25",
-    "ServerServer": "1AEDB06E-1F6A-4C8E-94EB-90F292E4E098",
-}
-
-// THIRD_KIND_END
-
 var sysCmpTokens = {
     // These don't seem to matter much, but I borrowed the ones that were auto-generated and made them unique for each SysCmp in each Gem
     "ClientSettings": "FDEEA325-EC4C-4D4B-9FBD-E64A8D523CE0",
@@ -211,7 +195,6 @@ function MakeApi(api, sourceDir, apiOutputDir, gemName) {
         gemUuid: uuids[gemName],
         hasClientOptions: api.name === "Client",
         sysCmpTokens: sysCmpTokens,
-        behaviorContextTokens: behaviorContextTokens, // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         uuid: (name) => uuidv5( name, sysCmpTokens[gemName+api.name]),     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         datatypes: orderedTypes,                      // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
         GetPropertySafeName: GetPropertySafeName,     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)

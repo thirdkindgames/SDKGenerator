@@ -9,7 +9,7 @@ namespace PlayFab<%- gemName %>Sdk
 		class PlayFab<%- gemName %>_<%- api.name %>BehaviorContext : public AZ::Component
 		{
 		public:
-			AZ_COMPONENT(PlayFab<%- gemName %>_<%- api.name %>BehaviorContext, "{<%- behaviorContextTokens[gemName+api.name] %>}");
+			AZ_COMPONENT(PlayFab<%- gemName %>_<%- api.name %>BehaviorContext, "{<%- uuid("BehaviorContextComponent") %>}");
 
 			static void Reflect(AZ::ReflectContext* context);
 
