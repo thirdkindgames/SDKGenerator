@@ -151,8 +151,8 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.cpp"), settingCmpCpp(locals));
 
     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
-    var behaviorInlTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_BehaviorContext.inl.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_BehaviorContext.inl"), behaviorInlTemplate(locals));
+    var behaviorInlTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_OnDemandReflection.inl.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_OnDemandReflection.inl"), behaviorInlTemplate(locals));
 
     var behaviorSharedTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_BehaviorContextShared.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_BehaviorContextShared.h"), behaviorSharedTemplate(locals));

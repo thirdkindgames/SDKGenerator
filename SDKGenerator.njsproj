@@ -444,6 +444,8 @@
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_BehaviorContext.h.ejs">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_BehaviorContextShared.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_OnDemandReflection.inl.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SdkModule.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SettingsSysComponent.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SysComponent.cpp.ejs" />
