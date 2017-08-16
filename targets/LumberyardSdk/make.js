@@ -274,9 +274,9 @@ function GetPropertyDef(property, datatype) {
     var safePropName = GetPropertySafeName(property);
 
     if (property.collection === "array")
-        return "AZStd::vector<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + "; 	// #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context.";
+        return "AZStd::vector<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + "; 	// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context.";
     else if (property.collection === "map")
-        return "std::map<AZStd::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "AZStd::unordered_map<AZStd::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";"; // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11) - Change std::map to AZStd::AZStd::unordered_map because the latter supports reflection to behavior context in LY1.10+. \n";
     return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
@@ -493,7 +493,7 @@ function GetArrayPropertySerializer(tabbing, property, datatype) {
 
     var internalTabbing = isOptional ? tabbing + "    " : tabbing;
     var arrayWriter = internalTabbing + "writer.StartArray();\n";
-    arrayWriter += internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) { 	// #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context. \n";
+    arrayWriter += internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) { 	// #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context. \n";
     arrayWriter += internalTabbing + "    " + writer + "\n";
     arrayWriter += internalTabbing + "}\n";
     arrayWriter += internalTabbing + "writer.EndArray();";
@@ -546,7 +546,7 @@ function GetMapPropertySerializer(tabbing, property, datatype) {
 
     var internalTabbing = isOptional ? tabbing + "    " : tabbing;
     var mapWriter = internalTabbing + "writer.StartObject();\n"
-        + internalTabbing + "for (std::map<AZStd::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n"
+        + internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) { // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11) - Change std::map to AZStd::AZStd::unordered_map because the latter supports reflection to behavior context in LY1.10+. \n"
         + internalTabbing + "    writer.String(iter->first.c_str());\n"
         + internalTabbing + "    " + writer + "\n"
         + internalTabbing + "}\n"
