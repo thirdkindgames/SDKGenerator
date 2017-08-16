@@ -28,4 +28,33 @@ namespace PlayFab<%- gemName %>Sdk
 %>    };
 
     using PlayFab<%- gemName %>_<%- api.name %>RequestBus = AZ::EBus<PlayFab<%- gemName %>_<%- api.name %>Requests>;
+
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+    // Simple request bus API - this version is exposed to Behavior context (Lua) and does not allow callbacks to be set.
+    // This is because behavior context has no way to set the callbacks (it uses a notification bus instead), additionally
+    // it does not support optional arguments in the bus interface so without this we would need to supply "nil" values
+    // for each callback function in Lua.
+    class PlayFab<%- gemName %>_<%- api.name %>SimpleRequests
+        : public AZ::EBusTraits
+    {
+
+    public:
+        static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Single;
+        static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::Single;
+
+        virtual int GetPendingCalls() = 0;
+<% if (hasClientOptions) { %>
+        virtual bool IsClientLoggedIn() = 0;
+<% } %>
+        // ------------ Generated API call wrappers
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) {
+%>        virtual int <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request) = 0;
+<% } else
+{%>        virtual int <%- apiCall.name %>() = 0;
+<% } }
+%>    };
+
+    using PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus = AZ::EBus<PlayFab<%- gemName %>_<%- api.name %>SimpleRequests>;
+    // #THIRD_KIND_END
+
 } // namespace PlayFab<%- gemName %>Sdk

@@ -58,11 +58,13 @@ namespace PlayFab<%- gemName %>Sdk
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::Activate()
     {
         PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler::BusConnect();
+        PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler::BusConnect(); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     }
 
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::Deactivate()
     {
         PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler::BusDisconnect();
+        PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler::BusDisconnect(); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     }
 
     int PlayFab<%- gemName %>_<%- api.name %>SysComponent::GetPendingCalls()
@@ -83,9 +85,21 @@ namespace PlayFab<%- gemName %>Sdk
     {
         return PlayFab<%- api.name %>Api::<%- apiCall.name %>(request, callback, errorCallback, customData);
     }
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request)
+    {
+        return <%- apiCall.name %>(request, nullptr, nullptr, nullptr);
+    }
+    // THIRD_KIND_END
 <% } else {
 %>    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback, ErrorCallback errorCallback, void* customData)
     {
         return PlayFab<%- api.name %>Api::<%- apiCall.name %>(callback, errorCallback, customData);
     }
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>()
+    {
+        return <%- apiCall.name %>(nullptr, nullptr, nullptr);
+    }
+    // THIRD_KIND_END
 <% } } %>}
