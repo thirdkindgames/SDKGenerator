@@ -142,7 +142,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "SdkModule.cpp"), sdkModuleTemplate(locals));
 
     var settingBusCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_SettingsBus.h.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_Settingsbus.h"), settingBusCpp(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_SettingsBus.h"), settingBusCpp(locals));
 
     var settingCmpH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.h"), settingCmpH(locals));
@@ -219,11 +219,11 @@ function MakeApi(api, sourceDir, apiOutputDir, gemName) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), apiCpp(locals));
 
     var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_Bus.h.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "bus.h"), apiCpp(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "Bus.h"), apiCpp(locals));
 
     // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
     var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_NotificationBus.h.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "notificationbus.h"), apiCpp(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "NotificationBus.h"), apiCpp(locals));
     // #THIRD_KIND_END
 
     // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
