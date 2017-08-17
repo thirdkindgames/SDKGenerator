@@ -16,14 +16,14 @@ namespace PlayFab<%- gemName %>Sdk
 
     struct PlayFabError
     {
-		AZ_TYPE_INFO(PlayFabError,"{<%- uuid("PlayFabError") %>}");
+		AZ_TYPE_INFO(PlayFabError,"{<%- uuid("PlayFabError") %>}"); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 
         int HttpCode; // Http status code
         AZStd::string HttpStatus; // Http status code description
         PlayFabErrorCode ErrorCode; // Playfab error
         AZStd::string ErrorName; // PlayFab error name
         AZStd::string ErrorMessage; // PlayFab error message
-        AZStd::unordered_map< AZStd::string, AZStd::string > ErrorDetails; // More specific details about failures (when present)
+        AZStd::unordered_map< AZStd::string, AZStd::string > ErrorDetails; // More specific details about failures (when present) // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11) - Change std::map to AZStd::AZStd::unordered_map because the latter supports reflection to behavior context in LY1.10+.
     };
 
     typedef void(*ErrorCallback)(const PlayFabError& error, void* customData);

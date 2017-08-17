@@ -92,7 +92,7 @@ namespace PlayFab<%- gemName %>Sdk
 
     struct MultitypeVar : public PlayFabBaseModel
     {
-        AZ_TYPE_INFO(MultitypeVar,"{<%- uuid("MultitypeVar") %>}");
+        AZ_TYPE_INFO(MultitypeVar,"{<%- uuid("MultitypeVar") %>}"); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     private:
         MultitypeVarTypes mType;
         AZStd::string mString;

@@ -85,21 +85,32 @@ namespace PlayFab<%- gemName %>Sdk
     {
         return PlayFab<%- api.name %>Api::<%- apiCall.name %>(request, callback, errorCallback, customData);
     }
-    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
-    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request)
-    {
-        return <%- apiCall.name %>(request, nullptr, nullptr, nullptr);
-    }
-    // THIRD_KIND_END
 <% } else {
 %>    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback, ErrorCallback errorCallback, void* customData)
     {
         return PlayFab<%- api.name %>Api::<%- apiCall.name %>(callback, errorCallback, customData);
     }
-    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
-    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>()
+<% } } 
+
+%>
+    // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11) - The request bus now has explicit functions which take a request parameter
+    // onlt and do not allow callbacks to be passed in. This is for code which expects to receive the callback on the notification bus.
+    // NOTE that Lua cannot use optional parameters on the bus, hence the need for an explicit version which does not accept callbacks
+    // The versions above, which are identical in defintion but with optional parameters cannot be used.
+<%
+
+for(var i in api.calls) { var apiCall = api.calls[i];
+%><% if(HasRequest(apiCall, api)) {
+%>    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request)
+    {
+        return <%- apiCall.name %>(request, nullptr, nullptr, nullptr);
+    }
+<% } else {
+%>    int PlayFab<%- gemName %>_<%- api.name %>SysComponent::<%- apiCall.name %>()
     {
         return <%- apiCall.name %>(nullptr, nullptr, nullptr);
     }
+    
+<% } } %>
     // THIRD_KIND_END
-<% } } %>}
+}

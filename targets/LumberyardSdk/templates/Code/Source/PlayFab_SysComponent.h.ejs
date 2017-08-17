@@ -10,7 +10,7 @@ namespace PlayFab<%- gemName %>Sdk
     class PlayFab<%- gemName %>_<%- api.name %>SysComponent
         : public AZ::Component
         , protected PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler
-        , protected PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler
+        , protected PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     {
     public:
         AZ_COMPONENT(PlayFab<%- gemName %>_<%- api.name %>SysComponent, "{<%- sysCmpTokens[gemName+api.name] %>}");
@@ -35,11 +35,19 @@ namespace PlayFab<%- gemName %>Sdk
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><% if(HasRequest(apiCall, api)) {
 %>        int <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr) override;
-        int <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request) override; // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 <% } else {
 %>        int <%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr) override;
-        int <%- apiCall.name %>() override; // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
 <% } } %>
+
+        // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%><% if(HasRequest(apiCall, api)) {
+%>        int <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request) override; // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+<% } else {
+%>        int <%- apiCall.name %>() override; 
+<% } } %>
+        // #THIRD_KIND_END
+
         ////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////
