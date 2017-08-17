@@ -101,6 +101,6 @@ namespace PlayFab<%- gemName %>Sdk
         AZStd::thread m_thread;
 
         // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11) - ID number of last sent request, every request is assigned a unique ID.
-		AZStd::atomic<int> m_requestID = 0;
+		AZStd::atomic<int> m_requestID = {0};
     };
 }

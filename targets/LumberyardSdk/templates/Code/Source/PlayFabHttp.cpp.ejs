@@ -138,7 +138,7 @@ int PlayFabRequestManager::AddRequest(PlayFabRequest* requestContainer)
     }
 
     // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
-	requestContainer->mRequestId = m_requestID.fetch_inc();
+	requestContainer->mRequestId = m_requestID++;
 	return requestContainer->mRequestId;
 	// #THIRD_KIND_END
 }
