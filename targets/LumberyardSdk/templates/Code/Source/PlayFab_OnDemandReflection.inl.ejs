@@ -30,9 +30,9 @@ namespace AZ
 					->Method("setNull", &ContainerType::setNull)
 					->Property("value",
 						// Getter
-						[](ContainerType* box) { return (T)box->mValue; },
+                        [](ContainerType* box) { return (T)*box; },
 						// Setter
-						[](ContainerType* box, T value) { box->mValue = value; }
+                        [](ContainerType* box, T value) { *box = value; }
 					)
 					;
 			}
