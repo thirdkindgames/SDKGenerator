@@ -11,7 +11,7 @@ namespace PlayFab<%- gemName %>Sdk
     public:
         // ------------ General notifications (not related to a specific API call)
         virtual void OnError(const PlayFabError& error, int requestId) {};
-<% if ( hasClientOptions ) { %>virtual void OnLogin(const <%- api.name %>Models::LoginResult& result, int requestId) {};<% } 
+<% if ( hasClientOptions ) { %>        virtual void OnLogin(const <%- api.name %>Models::LoginResult& result, int requestId) {};<% } 
 %>
         // ------------ Generated API call wrappers
 <% for(var i in api.calls) { var apiCall = api.calls[i]; 
