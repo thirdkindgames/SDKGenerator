@@ -205,7 +205,8 @@ namespace PlayFab<%- gemName %>Sdk
 		if(!datatype.isenum) { // ========= BEGIN EACH NON-ENUM BASED OBJECT =========
 		%>
 			behaviorContext->Class<<%- api.name %>Models::<%- datatype.name %>>("PlayFab<%- api.name %>_<%- datatype.name %>")
-                ->Constructor() <%
+                ->Constructor()
+				->Method("__tostring", [](<%- api.name %>Models::<%- datatype.name %>* p) { return p->toJSONString(); } ) <%
 			for(var i in datatype.properties) { var property = datatype.properties[i]; 
 
             // A few PlayFab types are not currently reflected as they require further work.

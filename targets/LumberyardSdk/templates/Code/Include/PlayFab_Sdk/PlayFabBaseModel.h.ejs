@@ -73,6 +73,8 @@ namespace PlayFab<%- gemName %>Sdk
 
     struct PlayFabBaseModel
     {
+        AZ_TYPE_INFO(PlayFabBaseModel,"{<%- uuid("PlayFabBaseModel") %>}"); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+
         virtual ~PlayFabBaseModel() {}
         virtual void writeJSON(PFStringJsonWriter& writer) const = 0;
         virtual bool readFromValue(const rapidjson::Value& obj) = 0;
