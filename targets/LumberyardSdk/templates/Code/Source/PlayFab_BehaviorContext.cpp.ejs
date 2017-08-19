@@ -151,6 +151,11 @@ namespace PlayFab<%- gemName %>Sdk
 		{
 			// Reflect the request bus
 			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus>("PlayFab<%- api.name %>RequestBus")<%
+
+			if (hasClientOptions) { %>
+        		->Event("IsClientLoggedIn",&PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Events::IsClientLoggedIn)<% 
+			}
+
 			for(var i in api.calls) { var apiCall = api.calls[i];%>
 				->Event("<%- apiCall.name %>", &PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Events::<%- apiCall.name %>)<% 
 			} %>;
