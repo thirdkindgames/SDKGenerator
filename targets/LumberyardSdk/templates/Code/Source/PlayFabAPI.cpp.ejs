@@ -75,7 +75,7 @@ void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* requ
         <%- api.name %>Models::<%- apiCall.result %>* outResult = new <%- api.name %>Models::<%- apiCall.result %>;
         outResult->readFromValue(request->mResponseJson->FindMember("data")->value);
 
-<%- GetResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api, gemName) %>
         if (request->mResultCallback != nullptr)
         {
             ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>>>(request->mResultCallback);

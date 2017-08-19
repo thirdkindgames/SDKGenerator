@@ -29,20 +29,34 @@ namespace PlayFab<%- gemName %>Sdk
 
     // Note that normally we would list all of the notification handler functions here using the AZ_EBUS_BEHAVIOR_BINDER macro
     // However the AZ_EBUS_BEHAVIOR_BINDER macro supports a maximum of 30 functions, so we generate the calls by hand here instead.
-            
+	<%
+		var customNotifications = {
+			// Function name: Datamodel type.
+			OnError: "const PlayFabError&"
+		}
+
+		if ( hasClientOptions )
+		{
+			customNotifications["OnLogin"] = `const ${api.name}Models::LoginResult&`
+		}
+	%>   
     public: 
         AZ_CLASS_ALLOCATOR(T,AZ::SystemAllocator,0)
     protected:
 
-		enum {
-			FN_OnError,
+		enum {<% 
+			for ( var functionName in customNotifications){%>
+			FN_<%- functionName %>,<%
+			}%>
 			<% for(var i in api.calls) { var apiCall = api.calls[i]; %>FN_On<%- apiCall.name %>,
 			<% } %>
         	FN_MAX
     	};
 
-        int GetFunctionIndex(const char* functionName) const override {
-			AZ_BEHAVIOR_EBUS_FUNC_INDEX(OnError)
+        int GetFunctionIndex(const char* functionName) const override {<% 
+			for ( var functionName in customNotifications){%>
+			AZ_BEHAVIOR_EBUS_FUNC_INDEX(<%- functionName %>)<%
+			}%>
 			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
 			%>AZ_BEHAVIOR_EBUS_FUNC_INDEX(On<%- apiCall.name %>)
 			<% } %>
@@ -56,8 +70,10 @@ namespace PlayFab<%- gemName %>Sdk
         // Constructor
         PlayFab<%- gemName %>_<%- api.name %>BehaviorBusBaseHandler()
         {
-        	m_events.resize(FN_MAX);
-			SetEvent(&T::OnError,"OnError");
+        	m_events.resize(FN_MAX);<% 
+			for ( var functionName in customNotifications){%>
+			SetEvent(&T::<%- functionName %>,"<%- functionName %>");<%
+			}%>
 			<% for(var i in api.calls) { var apiCall = api.calls[i]; 
 			%>SetEvent(&T::On<%- apiCall.name %>,"On<%- apiCall.name %>");
 			<% } %>
@@ -78,12 +94,16 @@ namespace PlayFab<%- gemName %>Sdk
         void Disconnect() override {
 			BusDisconnect();
 		}
-        
-		void OnError(const PlayFabError& error, int requestId) override
-		{
-			Call(FN_OnError, error, requestId);
-		}
 
+		// ------------ General notifications (not related to a specific API call)
+	<% for ( var functionName in customNotifications){
+		var dataType = customNotifications[functionName] 
+	%>		
+		void <%- functionName %>(<%- dataType %> data, int requestId) override
+		{
+			Call(FN_<%- functionName %>, data, requestId);
+		}	
+	<%}%>
 		// ------------ Generated APIs to receive from the PlayFab notification bus and forward on to the Lua behavior context.
 	<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 		void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result,int requestId) { Call(FN_On<%- apiCall.name %>, result,requestId); };<% 
@@ -105,11 +125,15 @@ namespace PlayFab<%- gemName %>Sdk
 			BusDisconnect();
 		}
 
-		void OnError(const PlayFabError& error, int requestId) override
+		// ------------ General notifications (not related to a specific API call)
+	<% for ( var functionName in customNotifications){
+		var dataType = customNotifications[functionName] 
+	%>		
+		void <%- functionName %>(<%- dataType %> data, int requestId) override
 		{
-			Call(FN_OnError, error, requestId);
-		}
-
+			Call(FN_<%- functionName %>, data, requestId);
+		}	
+	<%}%>
 		// ------------ Generated APIs to receive from the PlayFab notification bus and forward on to the Lua behavior context.
 	<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 		void On<%- apiCall.name %>(const <%- api.name %>Models::<%- apiCall.result%>& result,int requestId) { Call(FN_On<%- apiCall.name %>, result,requestId); };<% 

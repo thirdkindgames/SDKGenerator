@@ -802,13 +802,19 @@ function GetRequestActions(apiCall, api) {
     return "";
 }
 
-function GetResultActions(apiCall, api) {
+function GetResultActions(apiCall, api, gemName) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult->SessionTicket.length() > 0)\n"
             + "        {\n"
             + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n"
             + "        }\n"
-            + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n";
+            + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n"
+            + ((apiCall.result === "LoginResult") ? "\n"
+            + "        EBUS_EVENT_ID(request->mRequestId,PlayFab"+ gemName +"_" + api.name + "NotificationBus, OnLogin, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)\n"
+            + "        EBUS_EVENT(PlayFab"+ gemName +"_"+ api.name+"GlobalNotificationBus, OnLogin, *outResult, request->mRequestId);                     // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)\n"
+            : "")
+        ;
+
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + "        PlayFabSettings::playFabSettings->advertisingIdType += \"_Successful\";\n";
