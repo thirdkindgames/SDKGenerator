@@ -45,8 +45,8 @@ void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)
 // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
 void PlayFab<%- api.name %>Api::OnError(const PlayFabRequest& request, const PlayFabError& error)
 {
-    EBUS_EVENT_ID(request.mRequestId,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, OnError, error, request.mRequestId);     
-    EBUS_EVENT(PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus, OnError, error, request.mRequestId);
+    EBUS_QUEUE_EVENT_ID(request.mRequestId,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, OnError, error, request.mRequestId);     
+    EBUS_QUEUE_EVENT(PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus, OnError, error, request.mRequestId);
 }
 // THIRD_KIND_END
 
@@ -82,8 +82,8 @@ void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* requ
             successCallback(*outResult, request->mCustomData);
         }
 
-		EBUS_EVENT_ID(request->mRequestId,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, On<%- apiCall.name %>, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
-        EBUS_EVENT(PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus, On<%- apiCall.name %>, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
+		EBUS_QUEUE_EVENT_ID(request->mRequestId,PlayFab<%- gemName %>_<%- api.name %>NotificationBus, On<%- apiCall.name %>, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
+        EBUS_QUEUE_EVENT(PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus, On<%- apiCall.name %>, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)
 
         delete outResult;
         delete request;

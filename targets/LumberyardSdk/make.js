@@ -810,8 +810,8 @@ function GetResultActions(apiCall, api, gemName) {
             + "        }\n"
             + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n"
             + ((apiCall.result === "LoginResult") ? "\n"
-            + "        EBUS_EVENT_ID(request->mRequestId,PlayFab"+ gemName +"_" + api.name + "NotificationBus, OnLogin, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)\n"
-            + "        EBUS_EVENT(PlayFab"+ gemName +"_"+ api.name+"GlobalNotificationBus, OnLogin, *outResult, request->mRequestId);                     // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)\n"
+            + "        EBUS_QUEUE_EVENT_ID(request->mRequestId,PlayFab"+ gemName +"_" + api.name + "NotificationBus, OnLogin, *outResult, request->mRequestId); // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)\n"
+            + "        EBUS_QUEUE_EVENT(PlayFab"+ gemName +"_"+ api.name+"GlobalNotificationBus, OnLogin, *outResult, request->mRequestId);                     // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS_: dbowen (2017/08/11)\n"
             : "")
         ;
 

@@ -8,6 +8,7 @@
 
 #include "PlayFabSettings.h"
 #include "PlayFab<%- api.name %>Api.h"
+#include "PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- api.name %>NotificationBus.h" // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
 
 namespace PlayFab<%- gemName %>Sdk
 {
@@ -63,6 +64,7 @@ namespace PlayFab<%- gemName %>Sdk
 <% } %>
         PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler::BusConnect();
         PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler::BusConnect(); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        AZ::TickBus::Handler::BusConnect();
     }
 
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::Deactivate()
@@ -80,6 +82,12 @@ if (hasClientOptions) {
         // Shut down the http handler thread
         SAFE_DELETE(PlayFabRequestManager::playFabHttp);<% 
 } %>
+    }
+
+    void PlayFab<%- gemName %>_<%- api.name %>SysComponent::OnTick(float deltaTime, AZ::ScriptTimePoint time)
+    {
+        PlayFab<%- gemName %>_<%- api.name %>NotificationBus::ExecuteQueuedEvents();
+        PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus::ExecuteQueuedEvents();
     }
 
     int PlayFab<%- gemName %>_<%- api.name %>SysComponent::GetPendingCalls()

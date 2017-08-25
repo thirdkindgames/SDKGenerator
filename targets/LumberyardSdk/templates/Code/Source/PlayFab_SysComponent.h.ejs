@@ -2,7 +2,7 @@
 #pragma once
 
 #include <AzCore/Component/Component.h>
-
+#include <AzCore/Component/TickBus.h>
 #include <PlayFab<%- gemName %>Sdk/PlayFab<%- gemName %>_<%- api.name %>Bus.h>
 
 namespace PlayFab<%- gemName %>Sdk
@@ -11,6 +11,7 @@ namespace PlayFab<%- gemName %>Sdk
         : public AZ::Component
         , protected PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler
         , protected PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        , public AZ::TickBus::Handler // #THIRD_KIND_PLAYFAB_NOTIFICATION_BUS: dbowen (2017/08/11)
     {
     public:
         AZ_COMPONENT(PlayFab<%- gemName %>_<%- api.name %>SysComponent, "{<%- sysCmpTokens[gemName+api.name] %>}");
@@ -49,6 +50,11 @@ namespace PlayFab<%- gemName %>Sdk
         // #THIRD_KIND_END
 
         ////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////
+        // TickBus
+        void OnTick(float deltaTime, AZ::ScriptTimePoint time) override;
+        //////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////
         // AZ::Component interface implementation
