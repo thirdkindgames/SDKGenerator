@@ -43,7 +43,7 @@ namespace PlayFab<%- gemName %>Sdk
 
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required)
     {
-        (void)required;
+        required.push_back(AZ_CRC("PlayFab<%- gemName %>_SettingsService"));
     }
 
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent)
@@ -56,7 +56,11 @@ namespace PlayFab<%- gemName %>Sdk
     }
 
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::Activate()
-    {
+    {<% if (api.name === "Client" || api.name == "Server") { // HACK UNTIL REQUEST MANAGER INIT IS DONE CORRECTLY %>
+        // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES: - Changed statics to pointers, so they can be deleted before the system allocator is destroyed.
+        // Start the http request manager thread
+        PlayFabRequestManager::playFabHttp = new PlayFabRequestManager();
+<% } %>
         PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler::BusConnect();
         PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler::BusConnect(); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
     }
@@ -64,7 +68,18 @@ namespace PlayFab<%- gemName %>Sdk
     void PlayFab<%- gemName %>_<%- api.name %>SysComponent::Deactivate()
     {
         PlayFab<%- gemName %>_<%- api.name %>RequestBus::Handler::BusDisconnect();
-        PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler::BusDisconnect(); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)
+        PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Handler::BusDisconnect(); // #THIRD_KIND_PLAYFAB_BEHAVIOR_CONTEXT: dbowen (2017/08/11)<% 
+if (hasClientOptions) { 
+%>
+
+        // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES: - Changed statics to pointers, so they can be deleted before the system allocator is destroyed.
+        // Log out and clear the auth token
+        PlayFabClientApi::ForgetClientCredentials();<% 
+} %><% if (api.name === "Client" || api.name == "Server") { // HACK UNTIL REQUEST MANAGER INIT IS DONE CORRECTLY %>
+
+        // Shut down the http handler thread
+        SAFE_DELETE(PlayFabRequestManager::playFabHttp);<% 
+} %>
     }
 
     int PlayFab<%- gemName %>_<%- api.name %>SysComponent::GetPendingCalls()
