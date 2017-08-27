@@ -29,6 +29,7 @@ namespace PlayFab<%- gemName %>Sdk
 		// The EBus has multiple addresses. Addresses are not ordered. The address corresponds to the ID of the request.
 		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
 		static const bool EnableEventQueue = true;
+        using EventQueueMutexType = ::AZStd::recursive_mutex;
         typedef int BusIdType;
    };
 
@@ -44,6 +45,7 @@ namespace PlayFab<%- gemName %>Sdk
 		// The EBus has a single address, all notifications go to this address.
 		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::Single; 
         static const bool EnableEventQueue = true;
+         using EventQueueMutexType = ::AZStd::recursive_mutex;
    };
 
     using PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus = AZ::EBus<PlayFab<%- gemName %>_<%- api.name %>GlobalNotifications>;
