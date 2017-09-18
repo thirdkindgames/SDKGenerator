@@ -149,50 +149,6 @@ namespace PlayFab<%- gemName %>Sdk
 		AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
 		if (behaviorContext)
 		{
-			// Reflect the request bus
-			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus>("PlayFab<%- api.name %>RequestBus")<%
-
-			if (hasClientOptions) { %>
-        		->Event("IsClientLoggedIn",&PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Events::IsClientLoggedIn)<% 
-			}
-
-			for(var i in api.calls) { var apiCall = api.calls[i];%>
-				->Event("<%- apiCall.name %>", &PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Events::<%- apiCall.name %>)<% 
-			} %>;
-
-			// Reflect the ADDRESSED notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
-			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>NotificationBus>("PlayFab<%- api.name %>NotificationBus")
-				->Handler<PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler>();
-
-			// Reflect the GLOBAL notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
-			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus>("PlayFab<%- api.name %>GlobalNotificationBus")
-				->Handler<PlayFab<%- gemName %>_<%- api.name %>GlobalBehaviorBusHandler>();                
-			
-            //-----------------------------------------------------------------------------------------------------
-			// Reflect enum values
-            //-----------------------------------------------------------------------------------------------------
-	<% 
-        // Reflect all members of enum based data models.
-        for(var i in datatypes) 
-        { 
-            var datatype = datatypes[i]; // ========= BEGIN FOR-EACH DATATYPE DEFN =========
-            if(datatype.isenum)
-            {
-      %>        behaviorContext 
-            <%
-                for(var i=0; i<datatype.enumvalues.length; i++) { 
-                    var enumval = datatype.enumvalues[i];
-                    var enumName = `${datatype.name}${enumval.name}`
-
-                    %>    ->Enum<<%- api.name %>Models::<%- datatype.name %>::<%- enumName %>>( "PlayFab<%- api.name %>_<%- datatype.name %>_<%- enumval.name %>" )
-            <%
-                }
-                %>;
-    <%
-            }
-        }
-
-%>
             //-----------------------------------------------------------------------------------------------------
 			// Reflect data models (structs/classes)
             //-----------------------------------------------------------------------------------------------------
@@ -238,7 +194,54 @@ namespace PlayFab<%- gemName %>Sdk
 		} // ========= END EACH OBJECT =========
 	} // ========= END FOR-EACH DATATYPE DEFN ========= 
 	%> 
-				
+            //-----------------------------------------------------------------------------------------------------
+			// Reflect Buses
+            //-----------------------------------------------------------------------------------------------------
+
+			// Reflect the request bus
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus>("PlayFab<%- api.name %>RequestBus")<%
+
+			if (hasClientOptions) { %>
+        		->Event("IsClientLoggedIn",&PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Events::IsClientLoggedIn)<% 
+			}
+
+			for(var i in api.calls) { var apiCall = api.calls[i];%>
+				->Event("<%- apiCall.name %>", &PlayFab<%- gemName %>_<%- api.name %>SimpleRequestBus::Events::<%- apiCall.name %>)<% 
+			} %>;
+
+			// Reflect the ADDRESSED notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>NotificationBus>("PlayFab<%- api.name %>NotificationBus")
+				->Handler<PlayFab<%- gemName %>_<%- api.name %>BehaviorBusHandler>();
+
+			// Reflect the GLOBAL notification bus: (uses the BehaviorBusHandler declared at the beginning of this file)
+			behaviorContext->EBus<PlayFab<%- gemName %>_<%- api.name %>GlobalNotificationBus>("PlayFab<%- api.name %>GlobalNotificationBus")
+				->Handler<PlayFab<%- gemName %>_<%- api.name %>GlobalBehaviorBusHandler>();                
+			
+            //-----------------------------------------------------------------------------------------------------
+			// Reflect enum values
+            //-----------------------------------------------------------------------------------------------------
+	<% 
+        // Reflect all members of enum based data models.
+        for(var i in datatypes) 
+        { 
+            var datatype = datatypes[i]; // ========= BEGIN FOR-EACH DATATYPE DEFN =========
+            if(datatype.isenum)
+            {
+      %>        behaviorContext 
+            <%
+                for(var i=0; i<datatype.enumvalues.length; i++) { 
+                    var enumval = datatype.enumvalues[i];
+                    var enumName = `${datatype.name}${enumval.name}`
+
+                    %>    ->Enum<<%- api.name %>Models::<%- datatype.name %>::<%- enumName %>>( "PlayFab<%- api.name %>_<%- datatype.name %>_<%- enumval.name %>" )
+            <%
+                }
+                %>;
+    <%
+            }
+        }
+
+%>			
 		} // if (behaviorContext) {...
 	} // End of BehaviorContext::Reflect()
 
